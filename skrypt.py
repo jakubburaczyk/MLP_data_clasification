@@ -87,10 +87,10 @@ iteration_num = 0
 error = 1
 # Poczatek treningu sieci
 while error > 0.01:
-# while iteration_num < 10:
 	n = 0
+	# Przejscie w danej iteracji po wszystkich treningowych wektorach danych
 	while (n < data_size):
-
+		#Co drugi wektor danych treningowych ma taki sam target
 		if n%2 == 0:
 			input_neurons[0] = T1X[math.floor(n/2)]
 			input_neurons[1] = T1Y[math.floor(n/2)]
@@ -117,8 +117,6 @@ while error > 0.01:
 		error = np.mean(np.abs(target - output_neurons))
 		# print("Neurony wyjsciowe:", output_neurons)
 		# print("Blad:",error)
-
-
 
 		for o in range(len(output_gradients)):
 			output_gradients[o] = (target[o] - output_neurons[o])*derivate_sigmoid(output_neurons[o])
@@ -156,8 +154,9 @@ while error > 0.01:
 		n = n+1
 	x_iteration.append(iteration_num)
 	y_error.append(error)		
+	if iteration_num % 50 == 0:
+		print("Iteracja ", iteration_num, ", blad:",error)
 	iteration_num += 1
-	print("Blad:",error)
 
 plt.semilogx(x_iteration, y_error, label='linear')
 plt.show()
