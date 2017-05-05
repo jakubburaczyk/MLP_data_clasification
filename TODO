@@ -1,2 +1,4 @@
 - Testowanie sieci na testowych wektorach danych
-- wybranie optymalnych learning_rate i momentum
+- Wybranie optymalnych learning_rate i momentum
+- Komentarze kodu
+- Losowanie wektorów danych do treningu
