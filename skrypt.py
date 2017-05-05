@@ -17,7 +17,7 @@ momentum = 0.5
 filename = 'data.csv'
 
 # Wspolczynnik okreslajacy stosunek liczby wektorow danych uzytych do treningu sieci do liczby wektorow uzytych do testowania sieci
-train2test_ratio = 0.1
+train2test_ratio = 0.8
 
 # Inicjalizacja tablic i list
 input_neurons = [0] * input_neurons_cnt
@@ -42,13 +42,13 @@ output_gradients = [0] * output_neurons_cnt
 
 
 # Pobranie danych z pliku 
-data = np.genfromtxt(filename, delimiter=',', skip_header=10, skip_footer=10, names=['target', 'x', 'y', 'z'])
+data = np.genfromtxt(filename, delimiter=',', skip_header=1, skip_footer=0, names=['target', 'x', 'y', 'z'])
 
 # Skalowanie danych do zakresu [-1;1]
 max_value = max(max(abs(data['x'])), max(abs(data['y'])), max(abs(data['z'])))
-vectorX = data['x'] / max_value
-vectorY = data['y'] / max_value
-vectorZ = data['z'] / max_value
+vectorX = data['x'] #/ max_value
+vectorY = data['y'] #/ max_value
+vectorZ = data['z'] #/ max_value
 
 # Zapisanie danych treningowych do wektorow
 T1X = vectorX[0:math.ceil(2499*train2test_ratio)]
@@ -154,14 +154,70 @@ while error > 0.01:
 		n = n+1
 	x_iteration.append(iteration_num)
 	y_error.append(error)		
-	if iteration_num % 50 == 0:
+	if iteration_num % 10 == 0:
 		print("Iteracja ", iteration_num, ", blad:",error)
 	iteration_num += 1
 
-plt.semilogx(x_iteration, y_error, label='linear')
-plt.show()
 print("Liczba iteracji:", iteration_num)
+# plt.plot(x_iteration, y_error, label='linear')
+plt.semilogx(x_iteration, y_error, label='linear')
+plt.xlabel('Numer iteracji')
+plt.ylabel('Blad')
+plt.show()
 
+# Testowanie sieci
+# Pobierane sa pozostale wektory danych wejsciowych 
+T1X = vectorX[math.ceil(2499*train2test_ratio):2499]
+T1Y	= vectorY[math.ceil(2499*train2test_ratio):2499]
+T1Z	= vectorZ[math.ceil(2499*train2test_ratio):2499]
+T2X	= vectorX[math.ceil(2500+train2test_ratio*2499):4999]
+T2Y	= vectorY[math.ceil(2500+train2test_ratio*2499):4999]
+T2Z	= vectorZ[math.ceil(2500+train2test_ratio*2499):4999]
+
+
+prediction = [0] * output_neurons_cnt
+predicting_errors = 0
+data_size = 2*len(T1X)
+n = 0
+
+# Petla sprawdzajaca wszystkie pobranych danych testowych
+while (n < data_size):
+	if n<data_size/2:
+		input_neurons[0] = T1X[math.floor(n/2)]
+		input_neurons[1] = T1Y[math.floor(n/2)]
+		input_neurons[2] = T1Z[math.floor(n/2)]
+		target = [1.0, 0.0]
+	else :
+		input_neurons[0] = T2X[math.floor(n/2)]
+		input_neurons[1] = T2Y[math.floor(n/2)]
+		input_neurons[2] = T2Z[math.floor(n/2)]
+		target = [0.0, 1.0]	
+
+	hidden_neurons = np.dot(input_neurons, weights_ih)
+	hidden_neurons += biases_ih
+	for h in range(len(hidden_neurons)):
+		hidden_neurons[h] = sigmoid(hidden_neurons[h])
+
+	output_neurons = np.dot(hidden_neurons, weights_ho)
+	output_neurons += biases_ho
+	for o in range(len(output_neurons)):
+		output_neurons[o] = sigmoid(output_neurons[o])
+		if output_neurons[o] > 0.5:
+			prediction[o] = 1
+		else :
+			prediction[o] = 0
+
+	if target != prediction :
+		predicting_errors += 1
+
+	n += 1
+	if n % 500 == 0 :
+		print("Przetestowalem juz ", n, " zestawow danych.")
 
 	
+
+print("Bledy predykcji klasyfikacji danych: ", predicting_errors, "/", data_size)
+
+
+
 
