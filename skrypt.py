@@ -13,11 +13,14 @@ input_neurons_cnt = 3
 hidden_neurons_cnt = 3
 output_neurons_cnt = 2
 learning_rate = 0.01
-momentum = 0.5
+momentum = 0.7
 filename = 'data.csv'
 
 # Wspolczynnik okreslajacy stosunek liczby wektorow danych uzytych do treningu sieci do liczby wektorow uzytych do testowania sieci
-train2test_ratio = 0.8
+train2test_ratio = 0.1
+
+# Poszukiwana dokladnosc pracy sieci neuronowej
+desired_max_error = 0.001
 
 # Inicjalizacja tablic i list
 input_neurons = [0] * input_neurons_cnt
@@ -46,9 +49,9 @@ data = np.genfromtxt(filename, delimiter=',', skip_header=1, skip_footer=0, name
 
 # Skalowanie danych do zakresu [-1;1]
 max_value = max(max(abs(data['x'])), max(abs(data['y'])), max(abs(data['z'])))
-vectorX = data['x'] #/ max_value
-vectorY = data['y'] #/ max_value
-vectorZ = data['z'] #/ max_value
+vectorX = data['x'] / max_value
+vectorY = data['y'] / max_value
+vectorZ = data['z'] / max_value
 
 # Zapisanie danych treningowych do wektorow
 T1X = vectorX[0:math.ceil(2499*train2test_ratio)]
@@ -77,17 +80,17 @@ for i in range(len(biases_ih)):
 for i in range(len(biases_ho)):
 	biases_ho[i] = np.random.uniform(-0.5, 0.5)
 
-
-
 # Inicjacja tablic sluzacych do sporzadzenia wykresu zaleznosci bledu od numeru iteracji
 x_iteration = []
 y_error = []
 
 iteration_num = 0
-error = 1
+error = 999
+
 # Poczatek treningu sieci
-while error > 0.01:
+while error > desired_max_error:
 	n = 0
+	error = 0
 	# Przejscie w danej iteracji po wszystkich treningowych wektorach danych
 	while (n < data_size):
 		#Co drugi wektor danych treningowych ma taki sam target
@@ -114,7 +117,7 @@ while error > 0.01:
 		for o in range(len(output_neurons)):
 			output_neurons[o] = sigmoid(output_neurons[o])
 
-		error = np.mean(np.abs(target - output_neurons))
+		error += np.mean(np.abs(target - output_neurons))
 		# print("Neurony wyjsciowe:", output_neurons)
 		# print("Blad:",error)
 
@@ -152,6 +155,7 @@ while error > 0.01:
 		prev_biases_ho_delta = biases_ho_delta
 		# print(biases_ho)
 		n = n+1
+	error /= data_size
 	x_iteration.append(iteration_num)
 	y_error.append(error)		
 	if iteration_num % 10 == 0:
@@ -164,6 +168,8 @@ plt.semilogx(x_iteration, y_error, label='linear')
 plt.xlabel('Numer iteracji')
 plt.ylabel('Blad')
 plt.show()
+
+
 
 # Testowanie sieci
 # Pobierane sa pozostale wektory danych wejsciowych 
@@ -203,16 +209,25 @@ while (n < data_size):
 	for o in range(len(output_neurons)):
 		output_neurons[o] = sigmoid(output_neurons[o])
 		if output_neurons[o] > 0.5:
-			prediction[o] = 1
+			prediction[o] = 1.0
 		else :
-			prediction[o] = 0
+			prediction[o] = 0.0
 
+	print("Nerony wejsciowe:", input_neurons)
+	print("Neurony wyjsciowe:", output_neurons)
+	print("Predykcja:",prediction)
+	print("Cel:", target)
+	print("************")
+		
 	if target != prediction :
 		predicting_errors += 1
+		print("#############")
+		print("Dodaje nowy blad!")
+		print("#############")
 
 	n += 1
 	if n % 500 == 0 :
-		print("Przetestowalem juz ", n, " zestawow danych.")
+		print("Przetestowalem juz", n, "zestawow danych.")
 
 	
 
