@@ -1,4 +1,2 @@
-- DO POPRAWY petle wybierajace dane do uczenia/testownia
 - Wybranie optymalnych learning_rate i momentum
-- Komentarze kodu
-- Losowanie wektorów danych do treningu
+- Losowe wybieranie danych chyba już działa

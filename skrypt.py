@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import random
 
 def sigmoid(x):
 	return 1 / (1 + np.exp(-x))
@@ -13,14 +14,14 @@ input_neurons_cnt = 3
 hidden_neurons_cnt = 3
 output_neurons_cnt = 2
 learning_rate = 0.01
-momentum = 0.7
+momentum = 0.8
 filename = 'data.csv'
 
 # Wspolczynnik okreslajacy stosunek liczby wektorow danych uzytych do treningu sieci do liczby wektorow uzytych do testowania sieci
 train2test_ratio = 0.1
 
 # Poszukiwana dokladnosc pracy sieci neuronowej
-desired_max_error = 0.001
+desired_max_error = 0.12
 
 # Inicjalizacja tablic i list
 input_neurons = [0] * input_neurons_cnt
@@ -53,17 +54,46 @@ vectorX = data['x'] / max_value
 vectorY = data['y'] / max_value
 vectorZ = data['z'] / max_value
 
-# Zapisanie danych treningowych do wektorow
-T1X = vectorX[0:math.ceil(2499*train2test_ratio)]
-T1Y	= vectorY[0:math.ceil(2499*train2test_ratio)]
-T1Z	= vectorZ[0:math.ceil(2499*train2test_ratio)]
-T2X	= vectorX[2500:math.ceil(2500+train2test_ratio*2499)]
-T2Y	= vectorY[2500:math.ceil(2500+train2test_ratio*2499)]
-T2Z	= vectorZ[2500:math.ceil(2500+train2test_ratio*2499)]
+data_length = len(vectorX)
 
-data_size = 2*len(T1X)
+T1X = vectorX[0:2499]
+T1Y	= vectorY[0:2499]
+T1Z	= vectorZ[0:2499]
+T2X	= vectorX[2500:4999]
+T2Y	= vectorY[2500:4999]
+T2Z	= vectorZ[2500:4999]
+
+T1X = T1X.tolist()
+T1Y = T1Y.tolist()
+T1Z = T1Z.tolist()
+T2X = T2X.tolist()
+T2Y = T2Y.tolist()
+T2Z = T2Z.tolist()
+
+
+T1X_training = []
+T1Y_training = []
+T1Z_training = []
+T2X_training = []
+T2Y_training = []
+T2Z_training = []
 
 np.random.seed(1)
+
+for i in range(int(data_length * train2test_ratio / 2)):
+	index = np.random.random_integers(0, len(T1X))
+	T1X_training.append(T1X[index])
+	T1Y_training.append(T1Y[index])
+	T1Z_training.append(T1Z[index])
+	T2X_training.append(T2X[index])
+	T2Y_training.append(T2Y[index])
+	T2Z_training.append(T2Z[index])
+	T1X.pop(index)
+	T1Y.pop(index)
+	T1Z.pop(index)
+	T2X.pop(index)
+	T2Y.pop(index)
+	T2Z.pop(index)
 
 # Wypelnienie tablic z wagami wartosciami losowymi w przedziale [-0.5; 0.5]
 for r in range(len(input_neurons)):
@@ -85,24 +115,25 @@ x_iteration = []
 y_error = []
 
 iteration_num = 0
-error = 999
+error = 1
 
 # Poczatek treningu sieci
+# while iteration_num < 1:
 while error > desired_max_error:
 	n = 0
 	error = 0
 	# Przejscie w danej iteracji po wszystkich treningowych wektorach danych
-	while (n < data_size):
-		#Co drugi wektor danych treningowych ma taki sam target
+	while (n < 500):
+		#Co drugi wektor danych treningowych ma taki sam target?
 		if n%2 == 0:
-			input_neurons[0] = T1X[math.floor(n/2)]
-			input_neurons[1] = T1Y[math.floor(n/2)]
-			input_neurons[2] = T1Z[math.floor(n/2)]
+			input_neurons[0] = T1X_training[math.floor(n/2)]
+			input_neurons[1] = T1Y_training[math.floor(n/2)]
+			input_neurons[2] = T1Z_training[math.floor(n/2)]
 			target = [1.0, 0.0]
 		else :
-			input_neurons[0] = T2X[math.floor(n/2)]
-			input_neurons[1] = T2Y[math.floor(n/2)]
-			input_neurons[2] = T2Z[math.floor(n/2)]
+			input_neurons[0] = T2X_training[math.floor(n/2)]
+			input_neurons[1] = T2Y_training[math.floor(n/2)]
+			input_neurons[2] = T2Z_training[math.floor(n/2)]
 			target = [0.0, 1.0]
 
 		# print("Neurony wejsciowe: ",input_neurons, ", Target: ", target)
@@ -155,7 +186,7 @@ while error > desired_max_error:
 		prev_biases_ho_delta = biases_ho_delta
 		# print(biases_ho)
 		n = n+1
-	error /= data_size
+	error /= 500
 	x_iteration.append(iteration_num)
 	y_error.append(error)		
 	if iteration_num % 10 == 0:
@@ -164,21 +195,22 @@ while error > desired_max_error:
 
 print("Liczba iteracji:", iteration_num)
 # plt.plot(x_iteration, y_error, label='linear')
-plt.semilogx(x_iteration, y_error, label='linear')
+plt.semilogx(x_iteration, y_error)
 plt.xlabel('Numer iteracji')
 plt.ylabel('Blad')
+plt.grid(True)
 plt.show()
 
 
 
 # Testowanie sieci
 # Pobierane sa pozostale wektory danych wejsciowych 
-T1X = vectorX[math.ceil(2499*train2test_ratio):2499]
-T1Y	= vectorY[math.ceil(2499*train2test_ratio):2499]
-T1Z	= vectorZ[math.ceil(2499*train2test_ratio):2499]
-T2X	= vectorX[math.ceil(2500+train2test_ratio*2499):4999]
-T2Y	= vectorY[math.ceil(2500+train2test_ratio*2499):4999]
-T2Z	= vectorZ[math.ceil(2500+train2test_ratio*2499):4999]
+# T1X = vectorX[math.ceil(2499*train2test_ratio):2499]
+# T1Y	= vectorY[math.ceil(2499*train2test_ratio):2499]
+# T1Z	= vectorZ[math.ceil(2499*train2test_ratio):2499]
+# T2X	= vectorX[math.ceil(2500+train2test_ratio*2499):4999]
+# T2Y	= vectorY[math.ceil(2500+train2test_ratio*2499):4999]
+# T2Z	= vectorZ[math.ceil(2500+train2test_ratio*2499):4999]
 
 
 prediction = [0] * output_neurons_cnt
@@ -189,14 +221,14 @@ n = 0
 # Petla sprawdzajaca wszystkie pobranych danych testowych
 while (n < data_size):
 	if n<data_size/2:
-		input_neurons[0] = T1X[math.floor(n/2)]
-		input_neurons[1] = T1Y[math.floor(n/2)]
-		input_neurons[2] = T1Z[math.floor(n/2)]
+		input_neurons[0] = T1X[n]
+		input_neurons[1] = T1Y[n]
+		input_neurons[2] = T1Z[n]
 		target = [1.0, 0.0]
 	else :
-		input_neurons[0] = T2X[math.floor(n/2)]
-		input_neurons[1] = T2Y[math.floor(n/2)]
-		input_neurons[2] = T2Z[math.floor(n/2)]
+		input_neurons[0] = T2X[int(n - data_size/2)]
+		input_neurons[1] = T2Y[int(n - data_size/2)]
+		input_neurons[2] = T2Z[int(n - data_size/2)]
 		target = [0.0, 1.0]	
 
 	hidden_neurons = np.dot(input_neurons, weights_ih)
