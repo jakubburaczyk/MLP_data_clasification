@@ -13,7 +13,7 @@ def derivate_sigmoid(x):
 input_neurons_cnt = 3
 hidden_neurons_cnt = 3
 output_neurons_cnt = 2
-learning_rate = 0.01
+learning_rate = 0.05
 momentum = 0.8
 filename = 'data.csv'
 
@@ -194,8 +194,8 @@ while error > desired_max_error:
 	iteration_num += 1
 
 print("Liczba iteracji:", iteration_num)
-# plt.plot(x_iteration, y_error, label='linear')
-plt.semilogx(x_iteration, y_error)
+# plt.semilogx(x_iteration, y_error)
+plt.plot(x_iteration, y_error)
 plt.xlabel('Numer iteracji')
 plt.ylabel('Blad')
 plt.grid(True)
@@ -203,14 +203,7 @@ plt.show()
 
 
 
-# Testowanie sieci
-# Pobierane sa pozostale wektory danych wejsciowych 
-# T1X = vectorX[math.ceil(2499*train2test_ratio):2499]
-# T1Y	= vectorY[math.ceil(2499*train2test_ratio):2499]
-# T1Z	= vectorZ[math.ceil(2499*train2test_ratio):2499]
-# T2X	= vectorX[math.ceil(2500+train2test_ratio*2499):4999]
-# T2Y	= vectorY[math.ceil(2500+train2test_ratio*2499):4999]
-# T2Z	= vectorZ[math.ceil(2500+train2test_ratio*2499):4999]
+
 
 
 prediction = [0] * output_neurons_cnt
@@ -245,21 +238,21 @@ while (n < data_size):
 		else :
 			prediction[o] = 0.0
 
-	print("Nerony wejsciowe:", input_neurons)
-	print("Neurony wyjsciowe:", output_neurons)
-	print("Predykcja:",prediction)
-	print("Cel:", target)
-	print("************")
+	# print("Nerony wejsciowe:", input_neurons)
+	# print("Neurony wyjsciowe:", output_neurons)
+	# print("Predykcja:",prediction)
+	# print("Cel:", target)
+	# print("************")
 		
 	if target != prediction :
 		predicting_errors += 1
-		print("#############")
-		print("Dodaje nowy blad!")
-		print("#############")
+		# print("#############")
+		# print("Dodaje nowy blad!")
+		# print("#############")
 
 	n += 1
 	if n % 500 == 0 :
-		print("Przetestowalem juz", n, "zestawow danych.")
+		print("Przetestowalem juz", n, "zestawow danych,", predicting_errors,"/",n,"bledow.")
 
 	
 
