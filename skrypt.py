@@ -7,12 +7,20 @@ def sigmoid(x):
 def derivate_sigmoid(x):
 	return x * (1 - x)
 
+
+#W ostatnim etapie projektu należy wykonać eksperymenty przy użyciu sieci:
+#Należy sprawdzić jak zachowuje się nauka sieci dla minimum 3 różnych parametrów uczenia sieci (3 różne wartości współczynnika szybkości uczenia - learning rate)
+#Należy sprawdzić jakie uzyskuje się wyniki przy użyciu minimum 3 różnych architektur sieci (różna liczba neuronów w sieci)
+
+
+
+
 # Dane konfiguracyjne
 input_neurons_cnt = 3
-hidden_neurons_cnt = 3
+hidden_neurons_cnt = 11
 output_neurons_cnt = 2
 learning_rate = 0.01
-momentum = 0.6
+momentum = 0.7
 filename = 'data.csv'
 
 # Wspolczynnik okreslajacy stosunek liczby wektorow danych uzytych do treningu sieci do liczby wektorow uzytych do testowania sieci
@@ -57,7 +65,7 @@ max_value = max(max(abs(data['x'])), max(abs(data['y'])), max(abs(data['z'])))
 vectorX = data['x'] / max_value
 vectorY = data['y'] / max_value
 vectorZ = data['z'] / max_value
-
+print(max_value)
 
 data_length = len(vectorX)
 
